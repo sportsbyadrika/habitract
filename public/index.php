@@ -5,46 +5,24 @@ require_once __DIR__ . '/../includes/db.php';
 start_session();
 
 $error = null;
+$lockoutSeconds = get_login_lockout_seconds();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
+    $identifier = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    $stmt = $mysqli->prepare('SELECT u.id, u.supplier_id, u.name, u.mobile, u.address, u.email, u.username, u.password_hash, u.role, u.created_at, s.name AS supplier_name FROM users u LEFT JOIN suppliers s ON s.id = u.supplier_id WHERE u.username = ?');
-    $stmt->bind_param('s', $username);
-    $stmt->execute();
+    $result = attempt_login($mysqli, $identifier, $password);
 
-    $user = null;
-    if (method_exists($stmt, 'get_result')) {
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-    } else {
-        $stmt->bind_result($id, $supplierId, $name, $mobile, $address, $email, $usernameDb, $passwordHash, $role, $createdAt, $supplierName);
-        if ($stmt->fetch()) {
-            $user = [
-                'id' => $id,
-                'supplier_id' => $supplierId,
-                'name' => $name,
-                'mobile' => $mobile,
-                'address' => $address,
-                'email' => $email,
-                'username' => $usernameDb,
-                'password_hash' => $passwordHash,
-                'role' => $role,
-                'created_at' => $createdAt,
-                'supplier_name' => $supplierName,
-            ];
-        }
-    }
-    $stmt->close();
-
-    if ($user && password_verify($password, $user['password_hash'])) {
-        $_SESSION['user'] = $user;
+    if ($result['success']) {
         header('Location: dashboard.php');
         exit;
-    } else {
-        $error = 'Invalid username or password';
     }
+
+    $error = $result['message'];
+    $lockoutSeconds = get_login_lockout_seconds();
 }
+
+$isLocked = $lockoutSeconds > 0;
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
 <div class="container py-5">
@@ -62,17 +40,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <?php endif; ?>
           <form method="post" novalidate>
             <div class="mb-3">
-              <label class="form-label" for="username">Username</label>
-              <input type="text" class="form-control" id="username" name="username" required>
+              <label class="form-label" for="username">Username or Email</label>
+              <input type="text" class="form-control" id="username" name="username" required <?php echo $isLocked ? 'disabled' : ''; ?>>
             </div>
             <div class="mb-3">
               <label class="form-label" for="password">Password</label>
-              <input type="password" class="form-control" id="password" name="password" required>
+              <input type="password" class="form-control" id="password" name="password" required <?php echo $isLocked ? 'disabled' : ''; ?>>
             </div>
             <div class="d-grid">
-              <button type="submit" class="btn btn-success">Sign In</button>
+              <button type="submit" class="btn btn-success" <?php echo $isLocked ? 'disabled' : ''; ?>>Sign In</button>
             </div>
           </form>
+          <?php if ($isLocked): ?>
+            <p class="text-center text-muted small mb-0 mt-3">Too many login attempts. Please wait <?php echo ceil($lockoutSeconds / 60); ?> minute(s) before trying again.</p>
+          <?php else: ?>
+            <p class="text-center text-muted small mb-0 mt-3">You can sign in using either your username or email address.</p>
+          <?php endif; ?>
         </div>
       </div>
     </div>
