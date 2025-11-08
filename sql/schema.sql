@@ -53,5 +53,5 @@ INSERT INTO suppliers (name, address, phone, email) VALUES
 ('Sunrise Supplies', '1 Supply Street, City Center', '+91 98765 43210', 'info@sunrisesupplies.test');
 
 INSERT INTO users (supplier_id, name, mobile, address, email, username, password_hash, role) VALUES
-(NULL, 'System Super Admin', '+91 90000 00000', 'HQ Address', 'super@habitract.test', 'superadmin', PASSWORD('superadmin123'), 'super_admin'),
-(1, 'Supplier Admin', '+91 98888 88888', 'Branch Address', 'admin@sunrise.test', 'supplieradmin', PASSWORD('admin123'), 'supplier_admin');
+(NULL, 'System Super Admin', '+91 90000 00000', 'HQ Address', 'super@habitract.test', 'superadmin', '$2y$12$8dAg32gXsVkvKwiik3Z25OkxtoEIwFdQ1SYmJ0ExVsy0z1edEEvVO', 'super_admin'),
+(1, 'Supplier Admin', '+91 98888 88888', 'Branch Address', 'admin@sunrise.test', 'supplieradmin', '$2y$12$cXhAFuwIV1DzqnpMAsRzke3AEtApNcEbrqoVLK1e19EilSIks3zEi', 'supplier_admin');
