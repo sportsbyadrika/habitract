@@ -9,11 +9,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    $stmt = $mysqli->prepare('SELECT u.*, s.name AS supplier_name FROM users u LEFT JOIN suppliers s ON s.id = u.supplier_id WHERE username = ?');
+    $stmt = $mysqli->prepare('SELECT u.id, u.supplier_id, u.name, u.mobile, u.address, u.email, u.username, u.password_hash, u.role, u.created_at, s.name AS supplier_name FROM users u LEFT JOIN suppliers s ON s.id = u.supplier_id WHERE u.username = ?');
     $stmt->bind_param('s', $username);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+
+    $user = null;
+    if (method_exists($stmt, 'get_result')) {
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+    } else {
+        $stmt->bind_result($id, $supplierId, $name, $mobile, $address, $email, $usernameDb, $passwordHash, $role, $createdAt, $supplierName);
+        if ($stmt->fetch()) {
+            $user = [
+                'id' => $id,
+                'supplier_id' => $supplierId,
+                'name' => $name,
+                'mobile' => $mobile,
+                'address' => $address,
+                'email' => $email,
+                'username' => $usernameDb,
+                'password_hash' => $passwordHash,
+                'role' => $role,
+                'created_at' => $createdAt,
+                'supplier_name' => $supplierName,
+            ];
+        }
+    }
+    $stmt->close();
 
     if ($user && password_verify($password, $user['password_hash'])) {
         $_SESSION['user'] = $user;
