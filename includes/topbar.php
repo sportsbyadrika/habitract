@@ -11,7 +11,7 @@
         <p class="text-xs uppercase tracking-wide text-slate-500"><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $user['role'] ?? ''))); ?></p>
       </div>
       <img src="<?php echo htmlspecialchars(base_url('assets/avatar.svg')); ?>" alt="Profile" class="h-10 w-10 rounded-full border border-slate-200 bg-slate-100 p-1">
-      <a href="<?php echo htmlspecialchars(base_url('logout.php')); ?>" class="inline-flex items-center rounded-md border border-red-600 px-3 py-1 text-sm font-semibold text-red-600 transition hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">Logout</a>
+      <a href="<?php echo htmlspecialchars(base_url('logout.php')); ?>" class="inline-flex items-center rounded-md bg-red-600 px-3 py-1 text-sm font-semibold text-white shadow-sm transition hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">Logout</a>
     </div>
   </div>
 </header>

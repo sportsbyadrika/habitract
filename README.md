@@ -44,7 +44,7 @@ A PHP + MySQL web application for managing food, milk, and newspaper deliveries 
 - `includes/` – Shared PHP includes (layout, helpers, database).
 - `config/` – Application configuration.
 - `sql/` – Database schema and seed data.
-- `assets/` – Logos and placeholder avatars.
+- `public/assets/` – Logos and placeholder avatars served to the UI.
 
 ## Security Notes
 
