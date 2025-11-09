@@ -1,19 +1,19 @@
 # HabitRact Supply Management
 
-A PHP + MySQL web application for managing food, milk, and newspaper deliveries for multiple suppliers. The system supports four user roles (super admin, supplier admin, supplier staff, and supplier driver) with Bootstrap 5 responsive UI.
+A PHP + MySQL web application for managing food, milk, and newspaper deliveries for multiple suppliers. The system supports four user roles (super admin, supplier admin, supplier staff, and supplier driver) with a Tailwind CSS responsive UI.
 
 ## Features
 
 - Super admin portal to manage suppliers and supplier admins.
 - Supplier admin tools to manage staff, drivers, customers, and delivery schedules.
 - Delivery scheduling for food, milk, and newspapers across customer routes.
-- Role-based access control with vertical sidebar navigation and responsive layout.
+- Role-based access control with a horizontal navigation bar and responsive layout.
 
 ## Tech Stack
 
 - PHP 8+
 - MySQL 5.7+
-- Bootstrap 5
+- Tailwind CSS 3
 
 ## Getting Started
 
@@ -25,7 +25,7 @@ A PHP + MySQL web application for managing food, milk, and newspaper deliveries 
    SOURCE sql/schema.sql;
    ```
 
-2. Update `config/config.php` with your MySQL credentials.
+2. Update `config/config.php` with your MySQL credentials and the `base_url` that matches the folder where the app is hosted (e.g. `/app`).
 
 3. Serve the application with PHP's built-in server:
 

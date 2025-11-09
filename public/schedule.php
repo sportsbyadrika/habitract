@@ -27,14 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notes = trim($_POST['notes'] ?? '');
 
     if ($supplierId <= 0 || $customerId <= 0 || $driverId <= 0 || $scheduledDate === '') {
-        redirect_with_message('/schedule.php', 'danger', 'Supplier, customer, driver, and schedule date are required.');
+        redirect_with_message('schedule.php', 'danger', 'Supplier, customer, driver, and schedule date are required.');
     }
 
     $stmt = $mysqli->prepare('INSERT INTO schedules (supplier_id, customer_id, driver_id, supply_type, scheduled_date, notes) VALUES (?, ?, ?, ?, ?, ?)');
     $stmt->bind_param('iiisss', $supplierId, $customerId, $driverId, $supplyType, $scheduledDate, $notes);
     $stmt->execute();
 
-    redirect_with_message('/schedule.php', 'success', 'Delivery scheduled successfully.');
+    redirect_with_message('schedule.php', 'success', 'Delivery scheduled successfully.');
 }
 
 $supplierCondition = '';
@@ -63,109 +63,122 @@ $driversStmt->bind_param('i', $selectedSupplierId);
 $driversStmt->execute();
 $driverOptions = $driversStmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+$inputClass = 'mt-2 block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400';
+$labelClass = 'block text-sm font-semibold text-slate-700';
+
 include __DIR__ . '/../includes/header.php';
 ?>
 <?php include __DIR__ . '/../includes/navigation.php'; ?>
-<div class="content-wrapper">
+<div class="flex flex-1 flex-col">
   <?php include __DIR__ . '/../includes/topbar.php'; ?>
-  <main class="main-content">
+  <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
     <?php foreach (get_flash_messages() as $flash): ?>
-      <div class="alert alert-<?php echo htmlspecialchars($flash['type']); ?>">
-        <?php echo htmlspecialchars($flash['message']); ?>
+      <?php
+        $alertPalettes = [
+            'success' => 'border-brand-500 bg-brand-50 text-brand-700',
+            'danger' => 'border-red-500 bg-red-50 text-red-700',
+            'warning' => 'border-amber-500 bg-amber-50 text-amber-700',
+            'info' => 'border-slate-500 bg-slate-50 text-slate-700',
+        ];
+        $alertClass = $alertPalettes[$flash['type']] ?? $alertPalettes['info'];
+      ?>
+      <div class="mb-6 flex items-start gap-3 rounded-xl border-l-4 px-4 py-3 text-sm shadow-sm <?php echo $alertClass; ?>">
+        <span class="font-semibold capitalize"><?php echo htmlspecialchars($flash['type']); ?>:</span>
+        <span><?php echo htmlspecialchars($flash['message']); ?></span>
       </div>
     <?php endforeach; ?>
 
-    <div class="row g-4">
-      <div class="col-12 col-lg-4">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <h2 class="h5">Schedule Delivery</h2>
-            <form method="post" novalidate>
-              <div class="mb-3">
-                <label class="form-label" for="supplier_id">Supplier</label>
-                <select class="form-select" id="supplier_id" name="supplier_id" <?php echo $currentUser['role'] !== 'super_admin' ? 'disabled' : ''; ?>>
-                  <option value="">Select supplier</option>
-                  <?php foreach ($suppliers as $supplier): ?>
-                    <option value="<?php echo (int) $supplier['id']; ?>" <?php echo (int) $supplier['id'] === $selectedSupplierId ? 'selected' : ''; ?>>
-                      <?php echo htmlspecialchars($supplier['name']); ?>
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-                <?php if ($currentUser['role'] !== 'super_admin'): ?>
-                  <input type="hidden" name="supplier_id" value="<?php echo (int) $currentUser['supplier_id']; ?>">
-                <?php endif; ?>
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="customer_id">Customer</label>
-                <select class="form-select" id="customer_id" name="customer_id" required>
-                  <option value="">Select customer</option>
-                  <?php foreach ($customerOptions as $customer): ?>
-                    <option value="<?php echo (int) $customer['id']; ?>"><?php echo htmlspecialchars($customer['name']); ?></option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="driver_id">Driver</label>
-                <select class="form-select" id="driver_id" name="driver_id" required>
-                  <option value="">Select driver</option>
-                  <?php foreach ($driverOptions as $driver): ?>
-                    <option value="<?php echo (int) $driver['id']; ?>"><?php echo htmlspecialchars($driver['name']); ?></option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="supply_type">Supply Type</label>
-                <select class="form-select" id="supply_type" name="supply_type">
-                  <option value="Milk">Milk</option>
-                  <option value="Food">Food</option>
-                  <option value="Newspaper">Newspaper</option>
-                  <option value="Mixed">Mixed</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="scheduled_date">Scheduled Date</label>
-                <input type="date" class="form-control" id="scheduled_date" name="scheduled_date" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="notes">Notes</label>
-                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
-              </div>
-              <div class="d-grid">
-                <button type="submit" class="btn btn-success">Add Schedule</button>
-              </div>
-            </form>
+    <div class="grid gap-6 lg:grid-cols-3">
+      <div class="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-slate-200/40 backdrop-blur">
+        <h2 class="text-xl font-semibold text-slate-900">Schedule Delivery</h2>
+        <p class="mt-1 text-sm text-slate-500">Assign a driver and plan the next drop-off.</p>
+        <form method="post" class="mt-6 space-y-4" novalidate>
+          <div>
+            <label class="<?php echo $labelClass; ?>" for="supplier_id">Supplier</label>
+            <select class="<?php echo $inputClass; ?>" id="supplier_id" name="supplier_id" <?php echo $currentUser['role'] !== 'super_admin' ? 'disabled' : ''; ?>>
+              <option value="">Select supplier</option>
+              <?php foreach ($suppliers as $supplier): ?>
+                <option value="<?php echo (int) $supplier['id']; ?>" <?php echo (int) $supplier['id'] === $selectedSupplierId ? 'selected' : ''; ?>>
+                  <?php echo htmlspecialchars($supplier['name']); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+            <?php if ($currentUser['role'] !== 'super_admin'): ?>
+              <input type="hidden" name="supplier_id" value="<?php echo (int) $currentUser['supplier_id']; ?>">
+            <?php endif; ?>
           </div>
-        </div>
+          <div>
+            <label class="<?php echo $labelClass; ?>" for="customer_id">Customer</label>
+            <select class="<?php echo $inputClass; ?>" id="customer_id" name="customer_id" required>
+              <option value="">Select customer</option>
+              <?php foreach ($customerOptions as $customer): ?>
+                <option value="<?php echo (int) $customer['id']; ?>"><?php echo htmlspecialchars($customer['name']); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div>
+            <label class="<?php echo $labelClass; ?>" for="driver_id">Driver</label>
+            <select class="<?php echo $inputClass; ?>" id="driver_id" name="driver_id" required>
+              <option value="">Select driver</option>
+              <?php foreach ($driverOptions as $driver): ?>
+                <option value="<?php echo (int) $driver['id']; ?>"><?php echo htmlspecialchars($driver['name']); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div>
+            <label class="<?php echo $labelClass; ?>" for="supply_type">Supply Type</label>
+            <select class="<?php echo $inputClass; ?>" id="supply_type" name="supply_type">
+              <option value="Milk">Milk</option>
+              <option value="Food">Food</option>
+              <option value="Newspaper">Newspaper</option>
+              <option value="Mixed">Mixed</option>
+            </select>
+          </div>
+          <div>
+            <label class="<?php echo $labelClass; ?>" for="scheduled_date">Scheduled Date</label>
+            <input type="date" class="<?php echo $inputClass; ?>" id="scheduled_date" name="scheduled_date" required>
+          </div>
+          <div>
+            <label class="<?php echo $labelClass; ?>" for="notes">Notes</label>
+            <textarea class="<?php echo $inputClass; ?>" id="notes" name="notes" rows="3"></textarea>
+          </div>
+          <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-600/30 transition hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+            Add Schedule
+          </button>
+        </form>
       </div>
-      <div class="col-12 col-lg-8">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <h2 class="h5">Upcoming Deliveries</h2>
-            <div class="table-responsive">
-              <table class="table align-middle">
-                <thead>
+      <div class="lg:col-span-2">
+        <div class="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-slate-200/40 backdrop-blur">
+          <h2 class="text-2xl font-semibold text-slate-900">Upcoming Deliveries</h2>
+          <p class="text-sm text-slate-500">Monitor who is delivering what, and when.</p>
+          <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                   <tr>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Driver</th>
-                    <th>Supply</th>
-                    <th>Supplier</th>
-                    <th>Notes</th>
+                    <th class="px-4 py-3">Date</th>
+                    <th class="px-4 py-3">Customer</th>
+                    <th class="px-4 py-3">Driver</th>
+                    <th class="px-4 py-3">Supply</th>
+                    <th class="px-4 py-3">Supplier</th>
+                    <th class="px-4 py-3">Notes</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-200 bg-white/50">
                   <?php foreach ($schedules as $schedule): ?>
-                    <tr>
-                      <td><?php echo htmlspecialchars((new DateTime($schedule['scheduled_date']))->format('d M Y')); ?></td>
-                      <td><?php echo htmlspecialchars($schedule['customer_name']); ?></td>
-                      <td><?php echo htmlspecialchars($schedule['driver_name']); ?></td>
-                      <td><?php echo htmlspecialchars($schedule['supply_type']); ?></td>
-                      <td><?php echo htmlspecialchars($schedule['supplier_name']); ?></td>
-                      <td><?php echo htmlspecialchars($schedule['notes']); ?></td>
+                    <tr class="hover:bg-slate-50/80">
+                      <td class="px-4 py-3 font-medium text-slate-900"><?php echo htmlspecialchars((new DateTime($schedule['scheduled_date']))->format('d M Y')); ?></td>
+                      <td class="px-4 py-3 text-slate-600"><?php echo htmlspecialchars($schedule['customer_name']); ?></td>
+                      <td class="px-4 py-3 text-slate-600"><?php echo htmlspecialchars($schedule['driver_name']); ?></td>
+                      <td class="px-4 py-3 text-slate-600"><?php echo htmlspecialchars($schedule['supply_type']); ?></td>
+                      <td class="px-4 py-3 text-slate-600"><?php echo htmlspecialchars($schedule['supplier_name']); ?></td>
+                      <td class="px-4 py-3 text-slate-600"><?php echo htmlspecialchars($schedule['notes']); ?></td>
                     </tr>
                   <?php endforeach; ?>
                   <?php if (empty($schedules)): ?>
-                    <tr><td colspan="6" class="text-center text-muted">No deliveries scheduled.</td></tr>
+                    <tr>
+                      <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-500">No deliveries scheduled.</td>
+                    </tr>
                   <?php endif; ?>
                 </tbody>
               </table>
