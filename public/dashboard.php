@@ -33,57 +33,41 @@ $stats['customers'] = $mysqli->query('SELECT COUNT(*) AS total FROM customers')-
 include __DIR__ . '/../includes/header.php';
 ?>
 <?php include __DIR__ . '/../includes/navigation.php'; ?>
-<div class="content-wrapper">
+<div class="flex flex-1 flex-col">
   <?php include __DIR__ . '/../includes/topbar.php'; ?>
-  <main class="main-content">
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <h2 class="h6 text-muted">Suppliers</h2>
-            <p class="display-6 mb-0"><?php echo (int) $stats['suppliers']; ?></p>
-          </div>
-        </div>
+  <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
+    <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
+        <h2 class="text-sm font-medium text-slate-500">Suppliers</h2>
+        <p class="mt-2 text-4xl font-semibold text-slate-900"><?php echo (int) $stats['suppliers']; ?></p>
       </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <h2 class="h6 text-muted">Supplier Admins</h2>
-            <p class="display-6 mb-0"><?php echo (int) $stats['admins']; ?></p>
-          </div>
-        </div>
+      <div class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
+        <h2 class="text-sm font-medium text-slate-500">Supplier Admins</h2>
+        <p class="mt-2 text-4xl font-semibold text-slate-900"><?php echo (int) $stats['admins']; ?></p>
       </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <h2 class="h6 text-muted">Staff Members</h2>
-            <p class="display-6 mb-0"><?php echo (int) $stats['staff']; ?></p>
-          </div>
-        </div>
+      <div class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
+        <h2 class="text-sm font-medium text-slate-500">Staff Members</h2>
+        <p class="mt-2 text-4xl font-semibold text-slate-900"><?php echo (int) $stats['staff']; ?></p>
       </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <h2 class="h6 text-muted">Drivers</h2>
-            <p class="display-6 mb-0"><?php echo (int) $stats['drivers']; ?></p>
-          </div>
-        </div>
+      <div class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
+        <h2 class="text-sm font-medium text-slate-500">Drivers</h2>
+        <p class="mt-2 text-4xl font-semibold text-slate-900"><?php echo (int) $stats['drivers']; ?></p>
       </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-      <div class="card-body">
-        <h2 class="h5">Route Overview</h2>
-        <p class="text-muted">Track your deliveries for milk, food, and newspapers across customer routes.</p>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Active Customers
-            <span class="badge bg-primary rounded-pill"><?php echo (int) $stats['customers']; ?></span>
-          </li>
-          <li class="list-group-item">Use the menu to manage suppliers, staff, drivers, customers, and delivery schedules.</li>
-        </ul>
+    <section class="mt-8 rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-lg shadow-slate-200/40 backdrop-blur">
+      <h2 class="text-2xl font-semibold text-slate-900">Route Overview</h2>
+      <p class="mt-2 text-sm text-slate-500">Track your deliveries for milk, food, and newspapers across customer routes.</p>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2">
+        <div class="flex items-center justify-between rounded-2xl bg-slate-100 px-4 py-3">
+          <span class="text-sm font-medium text-slate-600">Active Customers</span>
+          <span class="rounded-full bg-brand-600 px-3 py-1 text-sm font-semibold text-white"><?php echo (int) $stats['customers']; ?></span>
+        </div>
+        <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-600">
+          Use the menu to manage suppliers, staff, drivers, customers, and delivery schedules.
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 </div>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

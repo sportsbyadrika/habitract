@@ -1,4 +1,49 @@
 <?php
+function app_config(): array
+{
+    static $config;
+
+    if ($config === null) {
+        $config = require __DIR__ . '/../config/config.php';
+    }
+
+    return $config;
+}
+
+function normalize_base_path(string $base): string
+{
+    $base = trim($base);
+
+    if ($base === '' || $base === '/') {
+        return '';
+    }
+
+    if ($base[0] !== '/') {
+        $base = '/' . $base;
+    }
+
+    return rtrim($base, '/');
+}
+
+function base_url(string $path = ''): string
+{
+    $config = app_config();
+    $base = normalize_base_path((string) ($config['base_url'] ?? ''));
+
+    $path = trim($path);
+    if ($path === '') {
+        return $base === '' ? '/' : $base;
+    }
+
+    if (preg_match('/^https?:\/\//i', $path)) {
+        return $path;
+    }
+
+    $path = '/' . ltrim($path, '/');
+
+    return ($base === '' ? '' : $base) . $path;
+}
+
 function start_session(): void
 {
     if (session_status() === PHP_SESSION_NONE) {
@@ -28,7 +73,7 @@ function is_logged_in(): bool
 function require_login(): void
 {
     if (!is_logged_in()) {
-        header('Location: index.php');
+        header('Location: ' . base_url('index.php'));
         exit;
     }
 }
@@ -67,7 +112,7 @@ function redirect_with_message(string $path, string $type, string $message): voi
 {
     start_session();
     $_SESSION['flash'][] = ['type' => $type, 'message' => $message];
-    header('Location: ' . $path);
+    header('Location: ' . base_url($path));
     exit;
 }
 
